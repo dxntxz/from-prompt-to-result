@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>From Prompt To Result| Telegram Mini App</title>
+    <meta name="description" content="Магазин промптов">
+    <link rel="stylesheet" href="assets/css/theme.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="telegram-icon">
+        <a href="https://t.me/toresfrpro" target="_blank" title="Наш Telegram канал">
+            <svg width="32" height="32" viewBox="0 0 24 24" class="telegram-plane">
+                <path d="M19.5,4.5 L4.5,10.5 L9,12.75 L14.25,8.25 L9,14.25 L9,19.5 L11.25,17.25 L13.5,19.5 L19.5,4.5 Z" 
+                      stroke="#000000" stroke-width="2" fill="none"/>
+                <path d="M9,14.25 L14.25,8.25" stroke="#000000" stroke-width="1.5"/>
+            </svg>
+        </a>
+    </div>
+
+    <div class="container">
+        <img src="assets/images/logo.png" alt="Pixel Prompts" class="logo">
+        
+        <div class="status-bar">
+            <div class="status-item">🛒 From Prompt To Result</div>
+            <div class="status-item">🎮 TELEGRAM MINI APP</div>
+            <div class="status-item">✅ ОНЛАЙН</div>
+        </div>
+        
+        <h1 class="page-title">ВЫБЕРИТЕ ПРОДУКТ</h1>
+        
+        <div class="products-grid" id="productsContainer">
+            <!-- Товары загружаются динамически -->
+        </div>
+        
+        <div id="cartSection" class="cart-section" style="display: none;">
+            <h2 class="section-title">🛒 ВАША КОРЗИНА</h2>
+            <div id="cartItems"></div>
+            <div class="cart-total">
+                Итого: <span id="totalPrice">0</span> ₽
+            </div>
+            <button onclick="proceedToCheckout()" class="buy-btn">ОФОРМИТЬ ЗАКАЗ</button>
+        </div>
+        
+        <div class="footer">
+            <p>PIXEL PROMPTS STORE © 2024 | Telegram Mini App</p>
+            <p>Принимаем: ЮMoney | СБП | Крипто</p>
+        </div>
+    </div>
+
+    <script src="assets/js/telegram-webapp.js"></script>
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/app.js"></script>
+	<script src="assets/js/telegram.js"></script>
+	<script src="assets/js/cart.js"></script>
+	<script src="assets/js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXEL PROMPTS | Школьные промпты</title>
+    <style>
+        @font-face {
+            font-family: 'Pixel';
+            src: local('MS PGothic'), local('MS Gothic'), local('SimSun-ExtB');
+            font-weight: normal;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            image-rendering: pixelated;
+            image-rendering: -moz-crisp-edges;
+        }
+        
+        /* Бело-черный пиксельный фон */
+        body {
+            font-family: 'Courier New', 'MS Gothic', monospace;
+            background-color: #ffffff;
+            color: #000000;
+            background-image: url('background.png'); /* ВСТАВЬТЕ СВОЙ ФАЙЛ */
+            background-size: cover; /* или contain, или 100% 100% */
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* чтобы фон не скроллился */
+            padding: 10px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid #000;
+            position: relative;
+        }
+        
+        /* Пиксельная рамка вокруг всего контента */
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            right: -6px;
+            bottom: -6px;
+            border: 2px solid #000;
+            z-index: -1;
+        }
+        
+        /* Логотип */
+        .logo {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            display: block;
+            image-rendering: pixelated;
+            filter: contrast(1.5) brightness(0.9);
+        }
+        
+        /* Общий заголовок */
+        .page-title {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 30px;
+            color: #000;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px dotted #000;
+            padding-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        /* Сетка промптов - 2 колонки */
+        .prompts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .prompts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Карточка промпта */
+        .prompt-card {
+            background: #fff;
+            border: 3px solid #000;
+            padding: 15px;
+            position: relative;
+            transition: all 0.2s;
+        }
+        
+        .prompt-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 #000;
+        }
+        
+        /* Номер промпта */
+        .prompt-number {
+            position: absolute;
+            top: -12px;
+            left: -12px;
+            background: #fff;
+            border: 3px solid #000;
+            color: #000;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Заголовок промпта */
+        .prompt-title {
+            color: #000;
+            font-size: 16px;
+            margin-bottom: 8px;
+            font-weight: bold;
+            padding-left: 25px;
+        }
+        
+        /* Бейджи нейросетей */
+        .ai-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin: 8px 0;
+            min-height: 24px;
+        }
+        
+        .ai-tag {
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+            padding: 2px 8px;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        /* Текст промпта */
+        .prompt-text {
+            background: #f8f8f8;
+            border: 2px solid #000;
+            padding: 10px;
+            margin: 8px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #222;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.4;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+        
+        /* Кнопка копирования */
+        .copy-btn {
+            background: #000;
+            color: #fff;
+            border: 2px solid #000;
+            padding: 8px 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .copy-btn:hover {
+            background: #fff;
+            color: #000;
+        }
+        
+        .copy-btn:active {
+            transform: translate(2px, 2px);
+        }
+        
+        .copy-btn.copied {
+            background: #fff;
+            color: #000;
+            border-color: #000;
+        }
+        
+        /* Уведомление */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #000;
+            color: #fff;
+            border: 3px solid #000;
+            padding: 10px 20px;
+            font-family: 'Courier New', monospace;
+            z-index: 1000;
+            animation: pixelAppear 0.3s, pixelDisappear 0.3s 2s forwards;
+            box-shadow: 4px 4px 0 #666;
+        }
+        
+        @keyframes pixelAppear {
+            0% { transform: translateX(100%) scale(0.5); opacity: 0; }
+            100% { transform: translateX(0) scale(1); opacity: 1; }
+        }
+        
+        @keyframes pixelDisappear {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+        
+        /* Категории/разделы */
+        .section-title {
+            font-size: 20px;
+            margin: 30px 0 15px;
+            color: #000;
+            text-transform: uppercase;
+            border-top: 3px solid #000;
+            padding-top: 10px;
+            grid-column: 1 / -1;
+        }
+        
+        /* Статус бар */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            background: #000;
+            color: #fff;
+            padding: 5px 10px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 2px solid #000;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Пиксельный курсор */
+        * {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" fill="black"/><rect x="4" y="4" width="8" height="8" fill="white"/></svg>'), auto;
+        }
+        
+        button, .prompt-card {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" fill="white"/><rect x="4" y="4" width="8" height="8" fill="black"/></svg>'), pointer;
+        }
+        
+        /* Полоса прокрутки */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #fff;
+            border: 2px solid #000;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #000;
+            border: 2px solid #000;
+        }
+        
+        /* Подвал */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 2px dotted #000;
+            color: #666;
+            font-size: 11px;
+            font-family: 'Courier New', monospace;
+        }
+
+	/* Иконка Telegram - бумажный самолетик */
+	.telegram-icon {
+	    position: fixed;
+	    top: 20px;
+	    right: 20px;
+	    z-index: 1000;
+	    background: white;
+	    border: 3px solid #000;
+	    width: 50px;
+	    height: 50px;
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    box-shadow: 4px 4px 0 #000;
+	    transition: all 0.2s;
+	    cursor: pointer;
+	}
+
+	.telegram-icon:hover {
+	    transform: translate(-2px, -2px);
+	    box-shadow: 6px 6px 0 #000;
+	    background: #f0f0f0;
+	}
+
+	.telegram-icon:active {
+	    transform: translate(2px, 2px);
+	    box-shadow: 2px 2px 0 #000;
+	}
+
+	.telegram-icon a {
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    width: 100%;
+	    height: 100%;
+	    text-decoration: none;
+	}
+	
+	/* Стиль самолетика */
+	.telegram-plane {
+	    width: 28px;
+	    height: 28px;
+	    transition: all 0.2s;
+	    filter: drop-shadow(1px 1px 0 #000);
+	}
+
+	.telegram-icon:hover .telegram-plane {
+	    transform: rotate(15deg) translate(-1px, -1px);
+	}
+
+	/* Альтернативный вариант - пиксельный самолетик */
+	.telegram-icon.pixel {
+	    background: #fff;
+	    border: 3px solid #000;
+	}
+
+	.telegram-icon.pixel .telegram-plane {
+	    image-rendering: pixelated;
+	    filter: none;
+	}
+    </style>
+</head>
+<body>
+    <!-- Иконка Telegram в правом верхнем углу -->
+    <div class="telegram-icon">
+        <a href="https://t.me/toresfrpro" target="_blank" title="Наш Telegram канал">
+            <!-- Бумажный самолетик Telegram (черно-белый пиксельный) -->
+            <svg width="32" height="32" viewBox="0 0 24 24" class="telegram-plane">
+                <!-- Крыло 1 -->
+                <path d="M19.5,4.5 L4.5,10.5 L9,12.75 L14.25,8.25 L9,14.25 L9,19.5 L11.25,17.25 L13.5,19.5 L19.5,4.5 Z" 
+                      stroke="#000000" 
+                      stroke-width="2" 
+                      fill="none" 
+                      stroke-linecap="square" 
+                      stroke-linejoin="miter"/>
+                <!-- Линия внутри -->
+                <path d="M9,14.25 L14.25,8.25" 
+                      stroke="#000000" 
+                      stroke-width="1.5" 
+                      stroke-linecap="square"/>
+            </svg>
+        </a>
+    </div>
+
+    <div class="container">
+        <!-- ЛОГОТИП -->
+        <img src="logo.png" alt="Pixel Prompts" class="logo" onerror="this.style.display='none'">
+        
+        <!-- СТАТУС БАР -->
+        <div class="status-bar">
+            <div class="status-item">📁 SCHOOL_PROMPTS_1.0</div>
+            <div class="status-item">🔄 26 ПРОМПТОВ</div>
+            <div class="status-item">✅ СИСТЕМА АКТИВНА</div>
+        </div>
+        
+        <!-- СЕТКА ПРОМПТОВ -->
+        <div class="prompts-grid">
+            
+            <!-- Раздел 1: Базовые -->
+            <div class="section-title">БАЗОВЫЕ ПРОМПТЫ</div>
+            
+            <!-- Промпт 1 -->
+            <div class="prompt-card">
+                <div class="prompt-number">01</div>
+                <div class="prompt-title">Написание сочинения/эссе</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">Blackbox</span>
+                </div>
+                <div class="prompt-text">Ты — эксперт по литературе и талантливый редактор. Мне нужно написать сочинение на тему {ТЕМА} для {КЛАСС} класса. Основная мысль: {ОСНОВНАЯ МЫСЛЬ}. Предложи четкую структуру (введение, аргументы, вывод), 3 сильных аргумента с примерами из произведения {НАЗВАНИЕ ПРОИЗВЕДЕНИЯ} и клишированные фразы для связки частей. Объём: {КОЛИЧЕСТВО} слов.</div>
+                <button class="copy-btn" onclick="copyPrompt(1)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 2 -->
+            <div class="prompt-card">
+                <div class="prompt-number">02</div>
+                <div class="prompt-title">Анализ стихотворения</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">Blackbox</span>
+                </div>
+                <div class="prompt-text">Разбери стихотворение {АВТОР} {НАЗВАНИЕ} как для урока литературы в {КЛАСС} классе. Сделай анализ по плану: 1) Тема и идея. 2) Жанр и размер. 3) Художественные средства (выпиши 5 самых ярких примеров с цитатами). 4) Моё впечатление (дай шаблон для выражения чувств). Ответ оформи списком.</div>
+                <button class="copy-btn" onclick="copyPrompt(2)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 3 -->
+            <div class="prompt-card">
+                <div class="prompt-number">03</div>
+                <div class="prompt-title">Решение задачи с объяснением</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">Blackbox</span>
+                </div>
+                <div class="prompt-text">Ты — терпеливый репетитор по {ПРЕДМЕТ, напр., алгебре}. Объясни, как решить эту задачу, как будто я новичок: {ПОЛНЫЙ ТЕКСТ ЗАДАЧИ}. Пожалуйста, разбери решение по шагам. Для каждого шага напиши: 1) Какое правило/формулу используем. 2) Почему именно это. 3) Вычисления. В конце дай краткий ответ.</div>
+                <button class="copy-btn" onclick="copyPrompt(3)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 4 -->
+            <div class="prompt-card">
+                <div class="prompt-number">04</div>
+                <div class="prompt-title">Подготовка к устному зачету</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">Perplexity</span>
+                </div>
+                <div class="prompt-text">Я учусь в {КЛАСС} классе. Помоги мне подготовить краткий, но содержательный ответ на вопрос по {ПРЕДМЕТ, напр., истории}: {ВОПРОС}. Сделай ответ в формате "шпаргалки": 3 ключевых тезиса, 2 даты/имени/термина, которые надо обязательно упомянуть, и 1 пример для иллюстрации.</div>
+                <button class="copy-btn" onclick="copyPrompt(4)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 5 -->
+            <div class="prompt-card">
+                <div class="prompt-number">05</div>
+                <div class="prompt-title">Идеи для школьных проектов</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">Blackbox</span>
+                </div>
+                <div class="prompt-text">Мы делаем в школе проект по теме {ОБЩАЯ ТЕМА, напр., Экология}. Мозговой штурм! Дай 5 оригинальных, но реализуемых идей для школьного проекта. Для каждой идеи укажи: 1) Название. 2) Цель. 3) Что нужно сделать (3-4 действия). 4) Какой может быть результат (плакат, презентация, модель).</div>
+                <button class="copy-btn" onclick="copyPrompt(5)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 6 -->
+            <div class="prompt-card">
+                <div class="prompt-number">06</div>
+                <div class="prompt-title">Объяснение сложной темы</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">Blackbox</span>
+                </div>
+                <div class="prompt-text">Объясни понятие {СЛОЖНЫЙ ТЕРМИН, напр., Квантовая суперпозиция} так, чтобы было понятно ученику {КЛАСС} класса. Используй простую аналогию из жизни (например, как {ПОНЯТНЫЙ ПРИМЕР}). Приведи 1 наглядный пример, который можно использовать в презентации.</div>
+                <button class="copy-btn" onclick="copyPrompt(6)">Копировать промпт</button>
+            </div>
+            
+            <!-- Раздел 2: Работа с информацией -->
+            <div class="section-title">РАБОТА С ИНФОРМАЦИЕЙ</div>
+            
+            <!-- Промпт 7 -->
+            <div class="prompt-card">
+                <div class="prompt-number">07</div>
+                <div class="prompt-title">Реферат - поиск информации</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">Perplexity</span>
+                    <span class="ai-tag">Qwen</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Найди актуальную информацию (не старше 5 лет) для школьного реферата по теме {ТЕМА}. Предоставь ссылки на надежные источники (википедия, образовательные сайты). На основе найденного предложи подробный план реферата из 5 разделов с подразделами для {КЛАСС} класса.</div>
+                <button class="copy-btn" onclick="copyPrompt(7)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 8 -->
+            <div class="prompt-card">
+                <div class="prompt-number">08</div>
+                <div class="prompt-title">Сравнительная таблица</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">Perplexity</span>
+                    <span class="ai-tag">Qwen</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Помоги создать сравнительную таблицу по теме {ТЕМА, напр., Митохондрия и Хлоропласт} для урока биологии. Определи 5–7 ключевых параметров для сравнения (функция, строение и т.д.). Заполни таблицу четкими, краткими формулировками.</div>
+                <button class="copy-btn" onclick="copyPrompt(8)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 9 -->
+            <div class="prompt-card">
+                <div class="prompt-number">09</div>
+                <div class="prompt-title">Биография личности</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">Perplexity</span>
+                    <span class="ai-tag">Qwen</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Найди краткую, но содержательную биографию {ИМЯ}. Представь её в двух форматах: 1) Хронологическая шкала с ключевыми датами и событиями. 2) Текст-описание на 10 предложений, идеальный для пересказа на уроке.</div>
+                <button class="copy-btn" onclick="copyPrompt(9)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 10 -->
+            <div class="prompt-card">
+                <div class="prompt-number">10</div>
+                <div class="prompt-title">Актуальные примеры</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">Perplexity</span>
+                    <span class="ai-tag">Qwen</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Мне нужны свежие и актуальные примеры (за последние 2–3 года) по теме {ТЕМА, напр., Глобальные проблемы человечества} для выступления на уроке обществознания. Дай 3 примера с кратким описанием и укажи источник (новостной сайт).</div>
+                <button class="copy-btn" onclick="copyPrompt(10)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 11 -->
+            <div class="prompt-card">
+                <div class="prompt-number">11</div>
+                <div class="prompt-title">План-конспект</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">Perplexity</span>
+                    <span class="ai-tag">Qwen</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Создай подробный план для краткого конспекта по теме {НАЗВАНИЕ ТЕМЫ} для урока {ПРЕДМЕТ} в {КЛАСС} классе: план должен быть структурированным (с главными пунктами и подпунктами), каждый пункт — это готовый тезис с указанием в скобках ключевых терминов, дат или имён, которые нужно записать...</div>
+                <button class="copy-btn" onclick="copyPrompt(11)">Копировать промпт</button>
+            </div>
+            
+            <!-- Раздел 3: Работа с текстами -->
+            <div class="section-title">РАБОТА С ТЕКСТАМИ</div>
+            
+            <!-- Промпт 12 -->
+            <div class="prompt-card">
+                <div class="prompt-number">12</div>
+                <div class="prompt-title">Анализ текста</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                    <span class="ai-tag">YandexGPT</span>
+                </div>
+                <div class="prompt-text">Вот отрывок текста: {ЦИТАТА}. Проанализируй его для урока. Кто вероятный автор или из какой он эпохи? Какую основную позицию или идею он выражает? Какие 2–3 ключевых слова это подтверждают?</div>
+                <button class="copy-btn" onclick="copyPrompt(12)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 13 -->
+            <div class="prompt-card">
+                <div class="prompt-number">13</div>
+                <div class="prompt-title">Создание теста</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                    <span class="ai-tag">YandexGPT</span>
+                </div>
+                <div class="prompt-text">Сгенерируй 10 тестовых вопросов с вариантами ответов (a, b, c, d) по теме {ТЕМА} для самоподготовки к контрольной. В конце дай ответы с очень кратким объяснением, почему этот вариант правильный. Уровень сложности — школьная программа {КЛАСС} класса.</div>
+                <button class="copy-btn" onclick="copyPrompt(13)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 14 -->
+            <div class="prompt-card">
+                <div class="prompt-number">14</div>
+                <div class="prompt-title">Перефразирование текста</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                    <span class="ai-tag">YandexGPT</span>
+                </div>
+                <div class="prompt-text">Помоги пересказать этот сложный абзац из учебника своими словами, чтобы было понятнее и короче. Вот текст: {ТЕКСТ}. Сделай два варианта: 1) Для личных заметок. 2) Для устного ответа у доски.</div>
+                <button class="copy-btn" onclick="copyPrompt(14)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 15 -->
+            <div class="prompt-card">
+                <div class="prompt-number">15</div>
+                <div class="prompt-title">Перефразирование без нейросети</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                    <span class="ai-tag">YandexGPT</span>
+                </div>
+                <div class="prompt-text">Переформулируй отрывок из учебного материала, максимально адаптировав его под устную речь и сохранив все научные факты, сначала в виде очень кратких тезисных заметок с ключевыми словами для быстрого запоминания, а затем — в виде плавного устного ответа...</div>
+                <button class="copy-btn" onclick="copyPrompt(15)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 16 -->
+            <div class="prompt-card">
+                <div class="prompt-number">16</div>
+                <div class="prompt-title">Задание по иностранному языку</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                    <span class="ai-tag">YandexGPT</span>
+                </div>
+                <div class="prompt-text">Придумай 5 интересных и корректных предложений на {ИНОСТРАННЫЙ ЯЗЫК} для перевода на русский. Тема: {ТЕМА, напр., Мой день}. Уровень: начинающий {КЛАСС} класс. В конце дай правильный перевод и выдели в каждом предложении одну ключевую грамматическую конструкцию.</div>
+                <button class="copy-btn" onclick="copyPrompt(16)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 17 -->
+            <div class="prompt-card">
+                <div class="prompt-number">17</div>
+                <div class="prompt-title">Формализация задачи</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                    <span class="ai-tag">YandexGPT</span>
+                </div>
+                <div class="prompt-text">Помоги четко выделить данные и вопрос из этой текстовой задачи по {ПРЕДМЕТУ}. Вот условие: {ТЕКСТ ЗАДАЧИ}. Оформи в виде подобном: Дано: (список). Найти: (список). Это поможет мне начать решение.</div>
+                <button class="copy-btn" onclick="copyPrompt(17)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 18 -->
+            <div class="prompt-card">
+                <div class="prompt-number">18</div>
+                <div class="prompt-title">Составление интервью</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                    <span class="ai-tag">YandexGPT</span>
+                </div>
+                <div class="prompt-text">Представь, что ты — {ЛИЧНОСТЬ}. Я беру у тебя интервью для школьного проекта. Ответь на 5 моих вопросов от первого лица, в стиле и с знаниями твоего времени: 1) {ВОПРОС 1}. 2) {ВОПРОС 2}.</div>
+                <button class="copy-btn" onclick="copyPrompt(18)">Копировать промпт</button>
+            </div>
+            
+            <!-- Раздел 4: Длинные тексты и анализ -->
+            <div class="section-title">ДЛИННЫЕ ТЕКСТЫ И АНАЛИЗ</div>
+            
+            <!-- Промпт 19 -->
+            <div class="prompt-card">
+                <div class="prompt-number">19</div>
+                <div class="prompt-title">Проверка готового текста</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">Perplexity</span>
+                </div>
+                <div class="prompt-text">Ты — строгий школьный учитель. Проверь это моё эссе/сочинение на тему {ТЕМА}. Оцени структуру, логику, аргументацию и язык. Укажи на 3 слабых места и предложи конкретные исправления. Также предложи 2 более сильных синонима для слов {СЛОВО1} и {СЛОВО2}, которые я использовал.</div>
+                <button class="copy-btn" onclick="copyPrompt(19)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 20 -->
+            <div class="prompt-card">
+                <div class="prompt-number">20</div>
+                <div class="prompt-title">Конспектирование статьи</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">Perplexity</span>
+                </div>
+                <div class="prompt-text">Вот ссылка на статью/текст: {ССЫЛКА/ВСТАВЬ ТЕКСТ}. Сделай по нему интеллект-карту (mind map) в текстовом формате. Выдели главную тему, 3-4 ключевых раздела, и по 2-3 важных тезиса в каждом. Это основа для моего конспекта.</div>
+                <button class="copy-btn" onclick="copyPrompt(20)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 21 -->
+            <div class="prompt-card">
+                <div class="prompt-number">21</div>
+                <div class="prompt-title">Перевод с учётом школьной лексики</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Переведи на английский язык для урока следующий текст, используй лексику уровня 8-9 класса: {ТЕКСТ НА РУССКОМ}. После перевода объясни, почему выбранные тобой глаголы (ходил, взять) переводятся именно так.</div>
+                <button class="copy-btn" onclick="copyPrompt(21)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 22 -->
+            <div class="prompt-card">
+                <div class="prompt-number">22</div>
+                <div class="prompt-title">Создание ребуса или кроссворда</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Придумай {РЕБУС/КРОССВОРД} для учеников {КЛАСС} класса по теме {ТЕМА, напр., Грибы}. В конце дай разгадку и пояснение, как она связана с темой.</div>
+                <button class="copy-btn" onclick="copyPrompt(22)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 23 -->
+            <div class="prompt-card">
+                <div class="prompt-number">23</div>
+                <div class="prompt-title">Помощь с расписанием</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Помоги составить план на вечер: у меня есть {КОЛИЧЕСТВО ВРЕМЕНИ}, нужно сделать {ПЕРЕЧЕНЬ ДЕЛ}. Распиши по времени с перерывами.</div>
+                <button class="copy-btn" onclick="copyPrompt(23)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 24 -->
+            <div class="prompt-card">
+                <div class="prompt-number">24</div>
+                <div class="prompt-title">Проверка грамотности</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Проверь орфографию и пунктуацию и в целом грамматику в этом тексте: {ТЕКСТ}.</div>
+                <button class="copy-btn" onclick="copyPrompt(24)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 25 -->
+            <div class="prompt-card">
+                <div class="prompt-number">25</div>
+                <div class="prompt-title">Формулировка цели проекта</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Помоги сформулировать чёткую цель для школьного проекта о {ТЕМА}. Цель должна начинаться со слова "Исследовать..." или "Создать...".</div>
+                <button class="copy-btn" onclick="copyPrompt(25)">Копировать промпт</button>
+            </div>
+            
+            <!-- Промпт 26 -->
+            <div class="prompt-card">
+                <div class="prompt-number">26</div>
+                <div class="prompt-title">Шаблон для заявления/просьбы</div>
+                <div class="ai-tags">
+                    <span class="ai-tag">DeepSeek</span>
+                    <span class="ai-tag">ChatGPT</span>
+                    <span class="ai-tag">GigaChat</span>
+                </div>
+                <div class="prompt-text">Дай шаблон вежливой просьбы учителю {ПРЕДМЕТ} о {ДЛЯ ЧЕГО} по уважительной причине.</div>
+                <button class="copy-btn" onclick="copyPrompt(26)">Копировать промпт</button>
+            </div>
+            
+        </div> <!-- Конец сетки -->
+        
+        <!-- ПОДВАЛ -->
+        <div class="footer">
+            <p>FROM PROMPT TO RESULT © 2026 | SCHOOL PROMPTS | VER 1.0</p>
+            <p>Для использования с: DeepSeek, ChatGPT, GigaChat, Perplexity, Blackbox, YandexGPT и другими</p>
+        </div>
+    </div>
+
+    <script>
+        // Все тексты промптов
+        const prompts = [
+            `Ты — эксперт по литературе и талантливый редактор. Мне нужно написать сочинение на тему {ТЕМА} для {КЛАСС} класса. Основная мысль: {ОСНОВНАЯ МЫСЛЬ}. Предложи четкую структуру (введение, аргументы, вывод), 3 сильных аргумента с примерами из произведения {НАЗВАНИЕ ПРОИЗВЕДЕНИЯ} и клишированные фразы для связки частей. Объём: {КОЛИЧЕСТВО} слов.\n\nСписок фраз, которыми нам сказали пользоваться: {ФРАЗЫ, ЕСЛИ НУЖНО}.`,
+            `Разбери стихотворение {АВТОР} {НАЗВАНИЕ} как для урока литературы в {КЛАСС} классе. Сделай анализ по плану: 1) Тема и идея. 2) Жанр и размер. 3) Художественные средства (выпиши 5 самых ярких примеров с цитатами). 4) Моё впечатление (дай шаблон для выражения чувств). Ответ оформи списком.`,
+            `Ты — терпеливый репетитор по {ПРЕДМЕТ, напр., алгебре}. Объясни, как решить эту задачу, как будто я новичок: {ПОЛНЫЙ ТЕКСТ ЗАДАЧИ}. Пожалуйста, разбери решение по шагам. Для каждого шага напиши: 1) Какое правило/формулу используем. 2) Почему именно это. 3) Вычисления. В конце дай краткий ответ.`,
+            `Я учусь в {КЛАСС} классе. Помоги мне подготовить краткий, но содержательный ответ на вопрос по {ПРЕДМЕТ, напр., истории}: {ВОПРОС}. Сделай ответ в формате "шпаргалки": 3 ключевых тезиса, 2 даты/имени/термина, которые надо обязательно упомянуть, и 1 пример для иллюстрации.`,
+            `Мы делаем в школе проект по теме {ОБЩАЯ ТЕМА, напр., Экология}. Мозговой штурм! Дай 5 оригинальных, но реализуемых идей для школьного проекта. Для каждой идеи укажи: 1) Название. 2) Цель. 3) Что нужно сделать (3-4 действия). 4) Какой может быть результат (плакат, презентация, модель).`,
+            `Объясни понятие {СЛОЖНЫЙ ТЕРМИН, напр., Квантовая суперпозиция} так, чтобы было понятно ученику {КЛАСС} класса. Используй простую аналогию из жизни (например, как {ПОНЯТНЫЙ ПРИМЕР}). Приведи 1 наглядный пример, который можно использовать в презентации.`,
+            `Найди актуальную информацию (не старше 5 лет) для школьного реферата по теме {ТЕМА}. Предоставь ссылки на надежные источники (википедия, образовательные сайты). На основе найденного предложи подробный план реферата из 5 разделов с подразделами для {КЛАСС} класса.`,
+            `Помоги создать сравнительную таблицу по теме {ТЕМА, напр., Митохондрия и Хлоропласт} для урока биологии. Определи 5–7 ключевых параметров для сравнения (функция, строение и т.д.). Заполни таблицу четкими, краткими формулировками.`,
+            `Найди краткую, но содержательную биографию {ИМЯ}. Представь её в двух форматах: 1) Хронологическая шкала с ключевыми датами и событиями. 2) Текст-описание на 10 предложений, идеальный для пересказа на уроке.`,
+            `Мне нужны свежие и актуальные примеры (за последние 2–3 года) по теме {ТЕМА, напр., Глобальные проблемы человечества} для выступления на уроке обществознания. Дай 3 примера с кратким описанием и укажи источник (новостной сайт).`,
+            `Создай подробный план для краткого конспекта по теме {НАЗВАНИЕ ТЕМЫ} для урока {ПРЕДМЕТ} в {КЛАСС} классе: план должен быть структурированным (с главными пунктами и подпунктами), каждый пункт — это готовый тезис с указанием в скобках ключевых терминов, дат или имён, которые нужно записать, чтобы по этому плану, добавляя под каждый пункт всего 1–2 предложения, можно было легко восстановить всю тему.`,
+            `Вот отрывок текста: {ЦИТАТА}. Проанализируй его для урока. Кто вероятный автор или из какой он эпохи? Какую основную позицию или идею он выражает? Какие 2–3 ключевых слова это подтверждают?`,
+            `Сгенерируй 10 тестовых вопросов с вариантами ответов (a, b, c, d) по теме {ТЕМА} для самоподготовки к контрольной. В конце дай ответы с очень кратким объяснением, почему этот вариант правильный. Уровень сложности — школьная программа {КЛАСС} класса.`,
+            `Помоги пересказать этот сложный абзац из учебника своими словами, чтобы было понятнее и короче. Вот текст: {ТЕКСТ}. Сделай два варианта: 1) Для личных заметок. 2) Для устного ответа у доски.`,
+            `Задание: пожалуйста, переформулируй представленный ниже отрывок из учебного материала, максимально адаптировав его под устную речь и сохранив все научные факты, сначала в виде очень кратких тезисных заметок с ключевыми словами для быстрого запоминания, а затем — в виде плавного устного ответа, который можно было бы естественно произнести у доски, начиная с фразы «Здесь говорится о...» и избегая книжных или шаблонных формулировок, чтобы итоговый текст звучал так, будто его подготовил сам ученик. {ТВОЙ ТЕКСТ}`,
+            `Придумай 5 интересных и корректных предложений на {ИНОСТРАННЫЙ ЯЗЫК} для перевода на русский. Тема: {ТЕМА, напр., Мой день}. Уровень: начинающий {КЛАСС} класс. В конце дай правильный перевод и выдели в каждом предложении одну ключевую грамматическую конструкцию. Раздел {НАЗВАНИЕ РАЗДЕЛА ГРАММАТИКИ/ОРФОГРАФИИ} нужно отработать.`,
+            `Помоги четко выделить данные и вопрос из этой текстовой задачи по {ПРЕДМЕТУ}. Вот условие: {ТЕКСТ ЗАДАЧИ}. Оформи в виде подобном: Дано: (список). Найти: (список). Это поможет мне начать решение.`,
+            `Представь, что ты — {ЛИЧНОСТЬ}. Я беру у тебя интервью для школьного проекта. Ответь на 5 моих вопросов от первого лица, в стиле и с знаниями твоего времени: 1) {ВОПРОС 1}. 2) {ВОПРОС 2}.`,
+            `Ты — строгий школьный учитель. Проверь это моё эссе/сочинение на тему {ТЕМА}. Оцени структуру, логику, аргументацию и язык. Укажи на 3 слабых места и предложи конкретные исправления. Также предложи 2 более сильных синонима для слов {СЛОВО1} и {СЛОВО2}, которые я использовал.`,
+            `Вот ссылка на статью/текст: {ССЫЛКА/ВСТАВЬ ТЕКСТ}. Сделай по нему интеллект-карту (mind map) в текстовом формате. Выдели главную тему, 3-4 ключевых раздела, и по 2-3 важных тезиса в каждом. Это основа для моего конспекта.`,
+            `Переведи на английский язык для урока следующий текст, используй лексику уровня 8-9 класса: {ТЕКСТ НА РУССКОМ}. После перевода объясни, почему выбранные тобой глаголы (ходил, взять) переводятся именно так.`,
+            `Придумай {РЕБУС/КРОССВОРД} для учеников {КЛАСС} класса по теме {ТЕМА, напр., Грибы}. В конце дай разгадку и пояснение, как она связана с темой.`,
+            `Помоги составить план на вечер: у меня есть {КОЛИЧЕСТВО ВРЕМЕНИ}, нужно сделать {ПЕРЕЧЕНЬ ДЕЛ}. Распиши по времени с перерывами.`,
+            `Проверь орфографию и пунктуацию и в целом грамматику в этом тексте: {ТЕКСТ}.`,
+            `Помоги сформулировать чёткую цель для школьного проекта о {ТЕМА}. Цель должна начинаться со слова "Исследовать..." или "Создать...".`,
+            `Дай шаблон вежливой просьбы учителю {ПРЕДМЕТ} о {ДЛЯ ЧЕГО} по уважительной причине.`
+        ];
+        
+        function copyPrompt(num) {
+            const index = num - 1;
+            if (index >= 0 && index < prompts.length) {
+                const text = prompts[index];
+                
+                // Современный способ
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        showNotification(`Промпт ${num} скопирован!`);
+                        updateButton(num);
+                    }).catch(err => {
+                        // Fallback
+                        copyFallback(text, num);
+                    });
+                } else {
+                    // Старый способ
+                    copyFallback(text, num);
+                }
+            }
+        }
+        
+        function copyFallback(text, num) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.opacity = '0';
+            document.body.appendChild(textArea);
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showNotification(`Промпт ${num} скопирован!`);
+                updateButton(num);
+            } catch (err) {
+                showNotification('Ошибка копирования');
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        function showNotification(message) {
+            // Удаляем старые уведомления
+            const oldNotification = document.querySelector('.notification');
+            if (oldNotification) oldNotification.remove();
+            
+            // Создаем новое
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            // Автоудаление через 2 секунды
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 2000);
+        }
+        
+        function updateButton(num) {
+            const button = document.querySelector(`button[onclick="copyPrompt(${num})"]`);
+            const originalText = button.textContent;
+            
+            // Меняем текст кнопки
+            button.textContent = 'СКОПИРОВАНО!';
+            button.classList.add('copied');
+            
+            // Пиксельный эффект
+            button.style.transform = 'translate(2px, 2px)';
+            
+            // Возвращаем через 1.5 секунды
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.classList.remove('copied');
+                button.style.transform = '';
+            }, 1500);
+        }
+        
+        // Пиксельный эффект для фона
+        function createPixelEffect() {
+            const container = document.querySelector('.container');
+            for (let i = 0; i < 50; i++) { // 50 случайных пикселей
+                const pixel = document.createElement('div');
+                pixel.style.cssText = `
+                    position: absolute;
+                    width: 2px;
+                    height: 2px;
+                    background: ${Math.random() > 0.1 ? '#000' : '#fff'};
+                    top: ${Math.random() * 100}%;
+                    left: ${Math.random() * 100}%;
+                    z-index: 1;
+                    pointer-events: none;
+                `;
+                container.appendChild(pixel);
+            }
+        }
+        
+        // Запускаем эффекты при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            createPixelEffect();
+        });
+    </script>
+</body>
+</html>

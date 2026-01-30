@@ -1,0 +1,608 @@
+/* FROM PROMPT TO RESULT - Пиксельная тема */
+/* Основной стиль из финал.txt с адаптацией для магазина */
+
+@font-face {
+    font-family: 'Pixel';
+    src: local('MS PGothic'), local('MS Gothic'), local('SimSun-ExtB');
+    font-weight: normal;
+}
+
+/* Сброс и базовые стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+}
+
+/* Основной фон и типографика */
+body {
+    font-family: 'Courier New', 'MS Gothic', monospace;
+    background-color: #ffffff;
+    color: #000000;
+    background-image: url('../images/bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    padding: 10px;
+    line-height: 1.5;
+    min-height: 100vh;
+}
+
+/* Основной контейнер */
+.fptr-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 4px solid #000;
+    position: relative;
+    box-shadow: 8px 8px 0 #000;
+}
+
+/* Пиксельная рамка вокруг контейнера */
+.fptr-container::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    border: 3px solid #000;
+    z-index: -1;
+}
+
+/* Логотип */
+.fptr-logo {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 30px;
+    display: block;
+    image-rendering: pixelated;
+    filter: contrast(1.5) brightness(0.9);
+    border: 3px solid #000;
+    background: #fff;
+    padding: 10px;
+}
+
+/* Заголовки */
+.fptr-title {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    border-bottom: 3px dotted #000;
+    padding-bottom: 15px;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #000;
+}
+
+.fptr-subtitle {
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 40px;
+    color: #333;
+    font-style: italic;
+}
+
+/* Статус бар */
+.fptr-status-bar {
+    display: flex;
+    justify-content: space-between;
+    background: #000;
+    color: #fff;
+    padding: 10px 15px;
+    margin-bottom: 30px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    border: 3px solid #000;
+    text-transform: uppercase;
+}
+
+.fptr-status-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Сетки */
+.fptr-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+@media (max-width: 768px) {
+    .fptr-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Карточки */
+.fptr-card {
+    background: #fff;
+    border: 4px solid #000;
+    padding: 25px;
+    position: relative;
+    transition: all 0.3s;
+    background-image: linear-gradient(45deg, #f8f8f8 25%, transparent 25%),
+                      linear-gradient(-45deg, #f8f8f8 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, #f8f8f8 75%),
+                      linear-gradient(-45deg, transparent 75%, #f8f8f8 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+}
+
+.fptr-card:hover {
+    transform: translate(-5px, -5px);
+    box-shadow: 8px 8px 0 #000;
+}
+
+/* Нумерация/бейджи */
+.fptr-badge {
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    background: #fff;
+    border: 3px solid #000;
+    color: #000;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+    font-family: 'Courier New', monospace;
+    z-index: 2;
+}
+
+.fptr-price-badge {
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    background: #000;
+    color: #fff;
+    border: 3px solid #000;
+    width: 70px;
+    height: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 16px;
+    font-family: 'Courier New', monospace;
+    z-index: 2;
+}
+
+.fptr-price-badge .amount {
+    font-size: 22px;
+    line-height: 1;
+}
+
+.fptr-price-badge .currency {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+/* Заголовки карточек */
+.fptr-card-title {
+    color: #000;
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: bold;
+    padding-left: 40px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* Тэги/метки */
+.fptr-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 15px 0;
+    min-height: 30px;
+}
+
+.fptr-tag {
+    background: #000;
+    color: #fff;
+    border: 2px solid #000;
+    padding: 4px 12px;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.fptr-tag.feature {
+    background: #fff;
+    color: #000;
+    border: 2px solid #000;
+}
+
+/* Текстовые блоки */
+.fptr-text-block {
+    background: #f8f8f8;
+    border: 3px solid #000;
+    padding: 15px;
+    margin: 15px 0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #222;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    line-height: 1.5;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* Кнопки */
+.fptr-btn {
+    background: #000;
+    color: #fff;
+    border: 3px solid #000;
+    padding: 12px 20px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    width: 100%;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+    font-weight: bold;
+}
+
+.fptr-btn:hover {
+    background: #fff;
+    color: #000;
+    transform: translate(-2px, -2px);
+    box-shadow: 4px 4px 0 #000;
+}
+
+.fptr-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+}
+
+.fptr-btn.secondary {
+    background: #fff;
+    color: #000;
+    border: 3px solid #000;
+    margin-top: 10px;
+}
+
+.fptr-btn.secondary:hover {
+    background: #000;
+    color: #fff;
+}
+
+.fptr-btn.copied {
+    background: #fff;
+    color: #000;
+    border-color: #000;
+}
+
+/* Уведомления */
+.fptr-notification {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    background: #000;
+    color: #fff;
+    border: 4px solid #000;
+    padding: 15px 25px;
+    font-family: 'Courier New', monospace;
+    z-index: 1000;
+    animation: fptrAppear 0.4s, fptrDisappear 0.4s 2.5s forwards;
+    box-shadow: 6px 6px 0 #666;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+@keyframes fptrAppear {
+    0% { transform: translateX(100%) scale(0.5); opacity: 0; }
+    100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes fptrDisappear {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Разделы/категории */
+.fptr-section {
+    font-size: 22px;
+    margin: 40px 0 20px;
+    color: #000;
+    text-transform: uppercase;
+    border-top: 4px solid #000;
+    padding-top: 15px;
+    grid-column: 1 / -1;
+    letter-spacing: 2px;
+}
+
+/* Корзина */
+.fptr-cart {
+    background: #fff;
+    border: 4px solid #000;
+    padding: 25px;
+    margin-top: 30px;
+}
+
+.fptr-cart-title {
+    font-size: 24px;
+    margin-bottom: 25px;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.fptr-cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 2px dotted #000;
+}
+
+.fptr-cart-item:last-child {
+    border-bottom: none;
+}
+
+.fptr-cart-total {
+    text-align: right;
+    font-size: 24px;
+    margin: 25px 0;
+    font-weight: bold;
+    padding-top: 15px;
+    border-top: 3px solid #000;
+}
+
+/* Пиксельный курсор */
+.fptr-cursor * {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" fill="black"/><rect x="4" y="4" width="8" height="8" fill="white"/></svg>'), auto;
+}
+
+.fptr-cursor button, .fptr-cursor .fptr-card {
+    cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"><rect width="16" height="16" fill="white"/><rect x="4" y="4" width="8" height="8" fill="black"/></svg>'), pointer;
+}
+
+/* Полоса прокрутки */
+.fptr-scrollbar::-webkit-scrollbar {
+    width: 16px;
+}
+
+.fptr-scrollbar::-webkit-scrollbar-track {
+    background: #fff;
+    border: 3px solid #000;
+}
+
+.fptr-scrollbar::-webkit-scrollbar-thumb {
+    background: #000;
+    border: 3px solid #000;
+}
+
+.fptr-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #333;
+}
+
+/* Подвал */
+.fptr-footer {
+    text-align: center;
+    margin-top: 50px;
+    padding-top: 25px;
+    border-top: 3px dotted #000;
+    color: #666;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    line-height: 1.8;
+}
+
+.fptr-footer p {
+    margin: 8px 0;
+}
+
+.fptr-footer a {
+    color: #000;
+    text-decoration: none;
+    border-bottom: 1px dotted #000;
+}
+
+.fptr-footer a:hover {
+    border-bottom: 1px solid #000;
+}
+
+/* Иконка Telegram */
+.fptr-telegram-icon {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 1000;
+    background: white;
+    border: 4px solid #000;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 6px 6px 0 #000;
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.fptr-telegram-icon:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 #000;
+    background: #f0f0f0;
+}
+
+.fptr-telegram-icon:active {
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px 0 #000;
+}
+
+.fptr-telegram-icon a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    text-decoration: none;
+}
+
+.fptr-telegram-plane {
+    width: 32px;
+    height: 32px;
+    transition: all 0.3s;
+    filter: drop-shadow(2px 2px 0 #000);
+}
+
+.fptr-telegram-icon:hover .fptr-telegram-plane {
+    transform: rotate(15deg) translate(-2px, -2px);
+}
+
+/* Загрузка */
+.fptr-loader {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 18px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.fptr-loader::after {
+    content: "";
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 3px solid #000;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: fptrSpin 1s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes fptrSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .fptr-container {
+        padding: 15px;
+        margin: 5px;
+    }
+    
+    .fptr-title {
+        font-size: 22px;
+    }
+    
+    .fptr-status-bar {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+    }
+    
+    .fptr-telegram-icon {
+        width: 50px;
+        height: 50px;
+        top: 15px;
+        right: 15px;
+    }
+}
+
+/* Анимации */
+@keyframes fptrPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.fptr-pulse {
+    animation: fptrPulse 2s infinite;
+}
+
+/* Тени для текста */
+.fptr-text-shadow {
+    text-shadow: 3px 3px 0 #000, 6px 6px 0 rgba(0,0,0,0.1);
+}
+
+/* Градиентные границы */
+.fptr-gradient-border {
+    border: 3px solid;
+    border-image: linear-gradient(45deg, #000, #333, #000) 1;
+}
+
+/* Эффект сканирования (как старый монитор) */
+.fptr-scanlines {
+    position: relative;
+}
+
+.fptr-scanlines::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(0,0,0,0.1) 50%
+    );
+    background-size: 100% 4px;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.3;
+}
+
+/* Пиксельные узоры */
+.fptr-pixel-bg {
+    background-color: #fff;
+    background-image: 
+        linear-gradient(45deg, #000 25%, transparent 25%),
+        linear-gradient(-45deg, #000 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #000 75%),
+        linear-gradient(-45deg, transparent 75%, #000 75%);
+    background-size: 4px 4px;
+    background-position: 0 0, 0 2px, 2px -2px, -2px 0px;
+}
+
+/* Ховер эффекты для ссылок */
+.fptr-link {
+    color: #000;
+    text-decoration: none;
+    border-bottom: 2px dotted #000;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.fptr-link:hover {
+    border-bottom: 2px solid #000;
+    padding-bottom: 2px;
+}
+
+.fptr-link::after {
+    content: "►";
+    position: absolute;
+    right: -20px;
+    opacity: 0;
+    transition: all 0.2s;
+}
+
+.fptr-link:hover::after {
+    opacity: 1;
+    right: -25px;
+}
