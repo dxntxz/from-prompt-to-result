@@ -21,7 +21,7 @@ body {
     font-family: 'Courier New', 'MS Gothic', monospace;
     background-color: #ffffff;
     color: #000000;
-    background-image: url('../images/bg.png');
+    background-image: url('../images/background.png');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;

@@ -1,0 +1,1 @@
+console.log("telegram-webapp.js загружен");

@@ -8,11 +8,20 @@
     <link rel="stylesheet" href="assets/css/theme.css">
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* МИКРОФИКС ДЛЯ TELEGRAM ИКОНКИ */
+        .telegram-icon svg.telegram-plane {
+            stroke: #000 !important;
+        }
+        .telegram-icon:hover svg.telegram-plane {
+            stroke: white !important;
+        }
+    </style>
 </head>
 <body>
     <div class="telegram-icon">
         <a href="https://t.me/toresfrpro" target="_blank" title="Наш Telegram канал">
-            <svg width="32" height="32" viewBox="0 0 24 24" class="telegram-plane">
+            <svg width="24" height="24" viewBox="0 0 24 24">
                 <path d="M19.5,4.5 L4.5,10.5 L9,12.75 L14.25,8.25 L9,14.25 L9,19.5 L11.25,17.25 L13.5,19.5 L19.5,4.5 Z" 
                       stroke="#000000" stroke-width="2" fill="none"/>
                 <path d="M9,14.25 L14.25,8.25" stroke="#000000" stroke-width="1.5"/>
@@ -24,9 +33,14 @@
         <img src="assets/images/logo.png" alt="Pixel Prompts" class="logo">
         
         <div class="status-bar">
-            <div class="status-item">🛒 From Prompt To Result</div>
-            <div class="status-item">🎮 TELEGRAM MINI APP</div>
-            <div class="status-item">✅ ОНЛАЙН</div>
+            <div class="store-status-item">🛒 From Prompt To Result</div>
+            <div class="store-status-item">🎮 TELEGRAM MINI APP</div>
+            <div class="store-status-item">✅ ОНЛАЙН</div>
+            <!-- КНОПКА КОРЗИНЫ - ДОБАВЛЯЕМ ЭТУ СТРОКУ -->
+            <div class="store-status-item cart-button" onclick="showCartSection()" style="cursor: pointer;">
+                <span>📦</span>
+                <span>КОРЗИНА <span id="cartCountBadge" style="color: #fff; font-weight: bold;">0</span></span>
+            </div>
         </div>
         
         <h1 class="page-title">ВЫБЕРИТЕ ПРОДУКТ</h1>
@@ -35,26 +49,96 @@
             <!-- Товары загружаются динамически -->
         </div>
         
-        <div id="cartSection" class="cart-section" style="display: none;">
-            <h2 class="section-title">🛒 ВАША КОРЗИНА</h2>
-            <div id="cartItems"></div>
-            <div class="cart-total">
-                Итого: <span id="totalPrice">0</span> ₽
-            </div>
-            <button onclick="proceedToCheckout()" class="buy-btn">ОФОРМИТЬ ЗАКАЗ</button>
-        </div>
-        
         <div class="footer">
-            <p>PIXEL PROMPTS STORE © 2024 | Telegram Mini App</p>
-            <p>Принимаем: ЮMoney | СБП | Крипто</p>
+            <p>FROM PROMPT TO RESULT © 2026 | TELEGRAM MINI APP</p>
+            <p>Принимаем: СБП | CRYPTO</p>
+        </div>
+
+    <!-- <script src="assets/js/telegram-webapp.js"></script> --> <!-- УДАЛИ ИЛИ ЗАКОММЕНТИРУЙ -->	
+    <script src="assets/js/telegram.js"></script>
+    <script src="assets/js/cart.js"></script>
+    <script src="assets/js/app.js"></script>
+
+    <!-- МОДАЛЬНОЕ ОКНО ПРЕДПРОСМОТРА -->
+    <div id="previewModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 id="previewTitle">ПРЕДПРОСМОТР ПРОМПТА</h3>
+                <button onclick="closePreview()" class="modal-close-btn">✕</button>
+            </div>
+        
+            <div class="modal-body">
+                <div class="preview-info">
+                    <div id="previewProductName"></div>
+                    <div id="previewPrice" class="price-tag"></div>
+                </div>
+            
+                <div class="prompt-preview-box">
+                    <div class="prompt-header">
+                        <span class="prompt-label">📋 ДЕМО-ПРОМПТ:</span>
+                        <button onclick="copyPreviewPrompt()" class="copy-small-btn">📋 КОПИРОВАТЬ</button>
+                    </div>
+                    <textarea id="previewPromptText" class="prompt-textarea" readonly rows="8"></textarea>
+                </div>
+            
+                <div class="modal-features">
+                    <h4>📦 ВКЛЮЧАЕТ В НАБОРЕ:</h4>
+                    <ul id="previewFeatures"></ul>
+                </div>
+            
+                <div class="modal-actions">
+                    <button onclick="addToCartFromPreview()" class="store-btn">🛒 ДОБАВИТЬ В КОРЗИНУ</button>
+                    <button onclick="closePreview()" class="store-btn secondary">ЗАКРЫТЬ</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script src="assets/js/telegram-webapp.js"></script>
-    <script src="assets/js/cart.js"></script>
-    <script src="assets/js/app.js"></script>
-	<script src="assets/js/telegram.js"></script>
-	<script src="assets/js/cart.js"></script>
-	<script src="assets/js/app.js"></script>
+    <!-- Секция корзины (стиль Telegram канала) -->
+    <!-- Иконка корзины Telegram-стиль -->
+    <div class="telegram-cart-icon" onclick="showCartSection()">
+        <div class="cart-icon-wrapper">
+            <svg width="24" height="24" viewBox="0 0 24 24" class="cart-svg">
+                <path d="M17,18C15.89,18 15,18.89 15,20C15,21.1 15.9,22 17,22C18.1,22 19,21.1 19,20C19,18.89 18.1,18 17,18ZM1,2V4H3L6.6,11.59L5.24,14.04C5.09,14.32 5,14.65 5,15C5,16.1 5.9,17 7,17H19V15H7.42C7.28,15 7.17,14.89 7.17,14.75L7.2,14.63L8.1,13H15.55C16.3,13 16.96,12.58 17.3,11.97L20.88,5.5C20.96,5.34 21,5.17 21,5C21,4.45 20.55,4 20,4H5.21L4.27,2H1ZM7,18C5.89,18 5,18.89 5,20C5,21.1 5.9,22 7,22C8.1,22 9,21.1 9,20C9,18.89 8.1,18 7,18Z" 
+                  fill="#000000"/>
+            </svg>
+            <div class="cart-badge" id="cartIconBadge">0</div>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО КОРЗИНЫ -->
+    <div id="cartModal" class="modal-overlay" style="display: none;">
+        <div class="modal-container cart-modal">
+            <div class="modal-header">
+                <h3>🛒 КОРЗИНА ПОКУПОК</h3>
+                <button class="modal-close-btn" onclick="showProductsSection()">✕</button>
+            </div>
+        
+            <div class="modal-body">
+                <div class="cart-items-modal" id="cartItemsModal">
+                    <!-- Товары будут тут -->
+                </div>
+            
+                <div class="cart-summary-modal">
+                    <div class="cart-total-modal">
+                        <span>ИТОГО:</span>
+                        <span id="totalPriceModal" class="total-amount-modal">0 ₽</span>
+                    </div>
+                
+                    <div class="modal-actions">
+                        <button onclick="checkout()" class="store-btn" style="margin-bottom: 10px;">
+                            💰 ОФОРМИТЬ ЗАКАЗ
+                        </button>
+                        <button onclick="clearCart()" class="store-btn secondary" style="margin-bottom: 10px;">
+                            🗑 ОЧИСТИТЬ КОРЗИНУ
+                        </button>
+                        <button onclick="showProductsSection()" class="store-btn secondary">
+                            ← ПРОДОЛЖИТЬ ПОКУПКИ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

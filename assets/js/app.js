@@ -1,6 +1,8 @@
 // FROM PROMPT TO RESULT - Telegram Mini App
 // Версия 1.0
 
+console.log("APP.JS ЗАГРУЖЕН!");
+
 const CONFIG = {
     appName: "FROM PROMPT TO RESULT",
     version: "1.0",
@@ -13,7 +15,7 @@ const CONFIG = {
             name: "🎓 FROM PROMPT TO RESULT: ШКОЛА",
             tagline: "26 промптов для учебы в школе",
             description: "Полный набор из 26 промптов для всех школьных предметов. Русский язык, математика, история, литература и другие. Версия 1.0",
-            price: 299,
+            price: 349,
             features: [
                 "26 готовых промптов",
                 "Все основные школьные предметы",
@@ -23,8 +25,8 @@ const CONFIG = {
                 "Подготовка к устным ответам",
                 "Идеи для школьных проектов"
             ],
-            image: "assets/images/school-pack.png",
-            demoPrompt: "Ты — эксперт по литературе...",
+            image: "",
+            demoPrompt: "Ты — эксперт по литературе и талантливый редактор. Мне нужно написать сочинение на тему \"{ТЕМА}\" для {КЛАСС} класса. Основная мысль: {ОСНОВНАЯ МЫСЛЬ}. Предложи четкую структуру (введение, аргументы, вывод), 3 сильных аргумента с примерами из произведения \"{НАЗВАНИЕ ПРОИЗВЕДЕНИЯ}\" и клишированные фразы для связки частей. Объём: {КОЛИЧЕСТВО} слов.",
             includes: "HTML файл с 26 промптами",
             version: "1.0"
         },
@@ -33,7 +35,7 @@ const CONFIG = {
             name: "🎓 FROM PROMPT TO RESULT: УНИВЕРСИТЕТ",
             tagline: "30 промптов для студентов",
             description: "Профессиональные промпты для студентов университетов. Курсовые работы, дипломы, лабораторные, научные статьи. Версия 1.0",
-            price: 399,
+            price: 349,
             features: [
                 "30 промптов для вуза",
                 "Написание курсовых работ",
@@ -43,8 +45,8 @@ const CONFIG = {
                 "Анализ исследований",
                 "Библиографические списки"
             ],
-            image: "assets/images/student-pack.png",
-            demoPrompt: "Ты — научный руководитель...",
+            image: "",
+            demoPrompt: "Ты — научный руководитель с 10-летним опытом. Помоги структурировать курсовую работу по теме \"{ТЕМА}\". Нужно: 1) Определить актуальность темы, 2) Сформулировать цель и задачи, 3) Предложить план из 3 глав с подпунктами, 4) Дать рекомендации по источникам (не старше 5 лет). Объём: 25-30 страниц.",
             includes: "HTML файл с 30 промптами",
             version: "1.0"
         },
@@ -53,7 +55,7 @@ const CONFIG = {
             name: "📊 FROM PROMPT TO RESULT: ПРЕЗЕНТАЦИИ",
             tagline: "20 промптов для создания презентаций",
             description: "Специализированные промпты для создания эффективных презентаций. Структура, дизайн, выступление, Canva/PPT. Версия 1.0",
-            price: 349,
+            price: 449,
             features: [
                 "20 промптов для презентаций",
                 "Структура слайдов",
@@ -63,8 +65,8 @@ const CONFIG = {
                 "Инфографика и визуализация",
                 "Питч-деки и защита проектов"
             ],
-            image: "assets/images/presentation-pack.png",
-            demoPrompt: "Ты — эксперт по презентациям...",
+            image: "",
+            demoPrompt: "Ты — эксперт по презентациям и публичным выступлениям. Помоги создать презентацию на тему \"{ТЕМА}\". Нужно: 1) Определить целевую аудиторию, 2) Предложить структуру из 10 слайдов, 3) Дать советы по визуальному оформлению (цвета, шрифты, изображения), 4) Написать тексты для ключевых слайдов. Для защиты проекта в университете.",
             includes: "HTML файл с 20 промптами",
             version: "1.0"
         }
@@ -82,49 +84,9 @@ let tg = null;
 let user = null;
 let cart = [];
 let isInitialized = false;
+let currentPreviewProduct = null;
 
-// Инициализация Telegram WebApp
-function initTelegramApp() {
-    if (typeof Telegram !== 'undefined') {
-        tg = Telegram.WebApp;
-        
-        // Настройка WebApp
-        tg.expand();
-        tg.enableClosingConfirmation();
-        tg.setHeaderColor('#000000');
-        tg.setBackgroundColor('#ffffff');
-        
-        // Получаем данные пользователя
-        user = tg.initDataUnsafe?.user || {
-            id: Date.now(),
-            first_name: 'Покупатель',
-            username: 'guest'
-        };
-        
-        // Загружаем корзину из localStorage
-        loadCart();
-        
-        // Настраиваем главную кнопку
-        updateMainButton();
-        
-        // Отправляем событие загрузки
-        tg.sendData(JSON.stringify({
-            action: "app_loaded",
-            app: "FROM PROMPT TO RESULT Store",
-            version: CONFIG.version,
-            user_id: user.id
-        }));
-        
-        isInitialized = true;
-        console.log("FROM PROMPT TO RESULT Store initialized");
-    } else {
-        console.warn("Telegram WebApp not available");
-        // Режим разработки
-        user = { id: 0, first_name: 'Developer', username: 'dev' };
-        loadCart();
-        isInitialized = true;
-    }
-}
+// ==================== ОСНОВНЫЕ ФУНКЦИИ ====================
 
 // Загрузка корзины
 function loadCart() {
@@ -142,9 +104,26 @@ function loadCart() {
 function saveCart() {
     localStorage.setItem('fptr_cart', JSON.stringify(cart));
     updateMainButton();
+    updateCartBadge();
 }
 
-// Обновление главной кнопки
+// Обновить счетчики корзины
+function updateCartBadge() {
+    const badge = document.getElementById('cartCountBadge');
+    const iconBadge = document.getElementById('cartIconBadge');
+    const cartButton = document.querySelector('.cart-button');
+    
+    if (iconBadge) {
+        iconBadge.textContent = cart.length;
+        iconBadge.style.display = cart.length > 0 ? 'flex' : 'none';
+    }
+    
+    if (badge) {
+        badge.textContent = cart.length;
+    }
+}
+
+// Обновление главной кнопки Telegram
 function updateMainButton() {
     if (!tg) return;
     
@@ -158,32 +137,29 @@ function updateMainButton() {
     }
 }
 
-// Показать раздел корзины
-function showCartSection() {
-    document.getElementById('cartSection').style.display = 'block';
-    document.getElementById('productsSection').style.display = 'none';
-    renderCart();
-    tg.MainButton.hide();
-    
-    // Добавляем кнопку "Вернуться"
-    const backBtn = document.createElement('button');
-    backBtn.className = 'store-btn secondary';
-    backBtn.textContent = '← НАЗАД К ТОВАРАМ';
-    backBtn.onclick = showProductsSection;
-    document.getElementById('cartSection').prepend(backBtn);
+// Инициализация Telegram
+function initTelegramApp() {
+    if (typeof Telegram !== 'undefined') {
+        tg = Telegram.WebApp;
+        tg.expand();
+        user = tg.initDataUnsafe?.user || { id: Date.now(), first_name: 'Покупатель' };
+    } else {
+        user = { id: 0, first_name: 'Developer' };
+    }
+    loadCart();
+    isInitialized = true;
 }
 
-// Показать раздел товаров
-function showProductsSection() {
-    document.getElementById('productsSection').style.display = 'block';
-    document.getElementById('cartSection').style.display = 'none';
-    updateMainButton();
-}
+// ==================== РЕНДЕР ТОВАРОВ ====================
 
-// Рендер товаров
 function renderProducts() {
     const container = document.getElementById('productsContainer');
-    if (!container) return;
+    if (!container) {
+        console.error("Container #productsContainer not found!");
+        return;
+    }
+    
+    console.log("Рендерю товары...", CONFIG.products.length);
     
     container.innerHTML = CONFIG.products.map(product => `
         <div class="product-card">
@@ -211,9 +187,70 @@ function renderProducts() {
             </button>
         </div>
     `).join('');
+    
+    console.log("Товары отрендерены!");
 }
 
-// Добавить в корзину
+// ==================== КОРЗИНА ====================
+
+function showCartSection() {
+    const modal = document.getElementById('cartModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderCart();
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function showProductsSection() {
+    const modal = document.getElementById('cartModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function renderCart() {
+    const container = document.getElementById('cartItemsModal');
+    const totalElement = document.getElementById('totalPriceModal');
+    
+    if (!container) {
+        console.error("Контейнер корзины не найден!");
+        return;
+    }
+    
+    if (cart.length === 0) {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px; color: #666;">
+                <div style="font-size: 48px; margin-bottom: 20px;">🛒</div>
+                <h3 style="margin-bottom: 10px;">Корзина пуста</h3>
+                <p>Добавьте товары из каталога</p>
+            </div>
+        `;
+        if (totalElement) totalElement.textContent = '0 ₽';
+        return;
+    }
+    
+    const total = cart.reduce((sum, item) => sum + item.price, 0);
+    
+    container.innerHTML = cart.map((item, index) => `
+        <div class="cart-item-modal">
+            <div class="cart-item-info-modal">
+                <div class="cart-item-name-modal">${item.name}</div>
+                <div class="cart-item-desc-modal">${item.tagline}</div>
+            </div>
+            <div style="text-align: right;">
+                <div class="cart-item-price-modal">${item.price} ₽</div>
+                <button onclick="removeFromCart(${index})" class="cart-item-remove-modal">
+                    ❌ Удалить
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    if (totalElement) totalElement.textContent = `${total} ₽`;
+}
+
 function addToCart(productId) {
     const product = CONFIG.products.find(p => p.id === productId);
     if (!product) return;
@@ -225,79 +262,81 @@ function addToCart(productId) {
     
     saveCart();
     showNotification(`${product.name} добавлен в корзину!`);
-    
-    if (tg) {
-        tg.HapticFeedback.impactOccurred('light');
-    }
 }
 
-// Рендер корзины
-function renderCart() {
-    const container = document.getElementById('cartItems');
-    const totalElement = document.getElementById('totalPrice');
-    
-    if (!container) return;
-    
-    if (cart.length === 0) {
-        container.innerHTML = '<div class="store-loader">Корзина пуста</div>';
-        if (totalElement) totalElement.textContent = '0';
-        return;
-    }
-    
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
-    
-    container.innerHTML = cart.map((item, index) => `
-        <div class="cart-item">
-            <div>
-                <strong>${item.name}</strong><br>
-                <small>${item.tagline}</small>
-            </div>
-            <div style="text-align: right;">
-                <div>${item.price} ₽</div>
-                <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#f00; font-size:12px; cursor:pointer; margin-top:5px;">
-                    ❌ УДАЛИТЬ
-                </button>
-            </div>
-        </div>
-    `).join('');
-    
-    if (totalElement) totalElement.textContent = total;
-}
-
-// Удалить из корзины
 function removeFromCart(index) {
-    cart.splice(index, 1);
-    saveCart();
-    renderCart();
-    updateMainButton();
-    
-    if (tg) {
-        tg.HapticFeedback.impactOccurred('medium');
+    if (index >= 0 && index < cart.length) {
+        cart.splice(index, 1);
+        saveCart();
+        renderCart();
     }
 }
 
-// Показать демо промпта
+function clearCart() {
+    cart = [];
+    localStorage.removeItem('fptr_cart');
+    showNotification('Корзина очищена!');
+    showProductsSection();
+    updateCartBadge();
+}
+
+// ==================== ПРЕДПРОСМОТР ====================
+
 function showDemo(productId) {
     const product = CONFIG.products.find(p => p.id === productId);
-    if (!product || !tg) return;
+    if (!product) return;
     
-    tg.showPopup({
-        title: `Демо: ${product.name}`,
-        message: `Пример промпта из этого набора:\n\n"${product.demoPrompt}"\n\nХотите увидеть больше? Приобретите полную версию!`,
-        buttons: [
-            {id: 'buy', type: 'default', text: '🛒 КУПИТЬ СЕЙЧАС'},
-            {type: 'cancel', text: 'ЗАКРЫТЬ'}
-        ]
-    });
+    currentPreviewProduct = product;
     
-    tg.onEvent('popupButtonClicked', (btn) => {
-        if (btn.id === 'buy') {
-            addToCart(productId);
-        }
-    });
+    document.getElementById('previewTitle').textContent = `ПРЕДПРОСМОТР: ${product.name}`;
+    document.getElementById('previewProductName').textContent = product.name;
+    document.getElementById('previewPrice').textContent = `${product.price} ₽`;
+    document.getElementById('previewPromptText').value = product.demoPrompt;
+    
+    const featuresList = document.getElementById('previewFeatures');
+    if (featuresList) {
+        featuresList.innerHTML = product.features.map(f => `<li>${f}</li>`).join('');
+    }
+    
+    const modal = document.getElementById('previewModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+    
+    document.body.style.overflow = 'hidden';
 }
 
-// Оформление заказа
+function closePreview() {
+    const modal = document.getElementById('previewModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    document.body.style.overflow = 'auto';
+    currentPreviewProduct = null;
+}
+
+function copyPreviewPrompt() {
+    const textarea = document.getElementById('previewPromptText');
+    if (!textarea) return;
+    
+    textarea.select();
+    try {
+        navigator.clipboard.writeText(textarea.value);
+        showNotification('Промпт скопирован!');
+    } catch (err) {
+        document.execCommand('copy');
+        showNotification('Промпт скопирован!');
+    }
+}
+
+function addToCartFromPreview() {
+    if (!currentPreviewProduct) return;
+    addToCart(currentPreviewProduct.id);
+    closePreview();
+}
+
+// ==================== ЗАКАЗ ====================
+
 function checkout() {
     if (cart.length === 0) {
         showNotification('Корзина пуста!');
@@ -305,57 +344,11 @@ function checkout() {
     }
     
     const total = cart.reduce((sum, item) => sum + item.price, 0);
-    
-    if (tg) {
-        tg.showPopup({
-            title: '💰 ОФОРМЛЕНИЕ ЗАКАЗА',
-            message: `Сумма заказа: ${total} ₽\n\nВыберите способ оплаты:`,
-            buttons: CONFIG.paymentMethods.map(method => ({
-                id: method.id,
-                type: 'default',
-                text: `${method.icon} ${method.name}`
-            })).concat([{type: 'cancel', text: 'ОТМЕНА'}])
-        });
-        
-        tg.onEvent('popupButtonClicked', (btn) => {
-            if (btn.id !== 'cancel') {
-                processPayment(btn.id);
-            }
-        });
-    } else {
-        // Режим разработки
-        alert(`Заказ на ${total} ₽\nВ реальном приложении здесь будет оплата`);
-    }
+    alert(`Заказ на ${total} ₽\nВ реальном приложении здесь будет оплата`);
 }
 
-// Обработка платежа
-function processPayment(method) {
-    const total = cart.reduce((sum, item) => sum + item.price, 0);
-    
-    // Отправляем данные о заказе
-    const orderData = {
-        action: "create_order",
-        user_id: user.id,
-        products: cart.map(item => item.id),
-        total: total,
-        payment_method: method,
-        timestamp: Date.now()
-    };
-    
-    if (tg) {
-        tg.sendData(JSON.stringify(orderData));
-        showNotification('Заказ создан! Ожидайте инструкции по оплате в боте.');
-        
-        // Очищаем корзину после успешного заказа
-        setTimeout(() => {
-            cart = [];
-            saveCart();
-            showProductsSection();
-        }, 2000);
-    }
-}
+// ==================== УТИЛИТЫ ====================
 
-// Показать уведомление
 function showNotification(message) {
     const notification = document.createElement('div');
     notification.className = 'store-notification';
@@ -369,34 +362,38 @@ function showNotification(message) {
     }, 3000);
 }
 
-// Инициализация при загрузке
-document.addEventListener('DOMContentLoaded', () => {
-    // Устанавливаем заголовок
+// ==================== ИНИЦИАЛИЗАЦИЯ ====================
+
+function initializeApp() {
+    console.log("Инициализация приложения...");
     document.title = `FROM PROMPT TO RESULT Store v${CONFIG.version}`;
     
-    // Рендерим продукты
+    // Рендерим товары сразу
     renderProducts();
     
-    // Инициализируем Telegram App
+    // Инициализируем Telegram через 100мс
     setTimeout(() => {
         initTelegramApp();
-        
-        // Если в корзине уже есть товары
-        if (cart.length > 0) {
-            renderCart();
-        }
-        
-        // Показываем контент
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('appContent').style.display = 'block';
-        
-    }, 500);
-});
+        updateCartBadge();
+        console.log("Приложение инициализировано!");
+    }, 100);
+}
 
-// Глобальные функции для кнопок
+// Запускаем при загрузке страницы
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeApp);
+} else {
+    initializeApp();
+}
+
+// Экспорт функций в глобальную область
 window.showDemo = showDemo;
+window.closePreview = closePreview;
+window.copyPreviewPrompt = copyPreviewPrompt;
+window.addToCartFromPreview = addToCartFromPreview;
+window.clearCart = clearCart;
+window.showCartSection = showCartSection;
+window.showProductsSection = showProductsSection;
 window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.checkout = checkout;
-window.showCartSection = showCartSection;
-window.showProductsSection = showProductsSection;
