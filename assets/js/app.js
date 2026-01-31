@@ -9,7 +9,7 @@ const CONFIG = {
     telegramBot: "@toresfrpro",
     supportLink: "https://t.me/toresfrpro",
     
-    baseUrl: "https://dxntxz.github.io/from-prompt-to-result/"
+    baseUrl: "https://dxntxz.github.io/from-prompt-to-result/",
 
     products: [
         {
