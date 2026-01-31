@@ -35,11 +35,17 @@
         <div class="status-bar">
             <div class="store-status-item">🛒 From Prompt To Result</div>
             <div class="store-status-item">🎮 TELEGRAM MINI APP</div>
-            <div class="store-status-item">✅ ОНЛАЙН</div>
-            <!-- КНОПКА КОРЗИНЫ - ДОБАВЛЯЕМ ЭТУ СТРОКУ -->
             <div class="store-status-item cart-button" onclick="showCartSection()" style="cursor: pointer;">
                 <span>📦</span>
                 <span>КОРЗИНА <span id="cartCountBadge" style="color: #fff; font-weight: bold;">0</span></span>
+            </div>
+            <div class="store-status-item" onclick="showMyPurchases()" style="cursor: pointer;">
+                <span>📁</span>
+                <span>МОИ ПОКУПКИ</span>
+            </div>
+            <div class="store-status-item" onclick="resetAllData()" style="cursor: pointer; color: #ff6666;" title="Очистить все данные (для тестирования)">
+                <span>🗑️</span>
+                <span>СБРОС</span>
             </div>
         </div>
         
@@ -51,7 +57,11 @@
         
         <div class="footer">
             <p>FROM PROMPT TO RESULT © 2026 | TELEGRAM MINI APP</p>
-            <p>Принимаем: СБП | CRYPTO</p>
+            <p>Принимаем: ЮМАНИ | CRYPTO</p>
+            <div class="footer-links">
+                <a href="https://t.me/toresfrpro" target="_blank">Telegram канал</a>
+                <a href="https://github.com/dxntxz/from-prompt-to-result" target="_blank">GitHub</a>
+            </div>
         </div>
 
     <!-- <script src="assets/js/telegram-webapp.js"></script> --> <!-- УДАЛИ ИЛИ ЗАКОММЕНТИРУЙ -->	

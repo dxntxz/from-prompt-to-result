@@ -1379,3 +1379,60 @@ body::before {
     border: 3px solid #000 !important;
     background: white !important;
 }
+
+/* Стили для купленных товаров */
+.purchased-btn {
+    background: #00a000 !important;
+    color: white !important;
+    border-color: #008000 !important;
+    cursor: default !important;
+}
+
+.purchased-btn:hover {
+    transform: none !important;
+    box-shadow: none !important;
+    background: #00a000 !important;
+    color: white !important;
+}
+
+.product-badge.purchased {
+    background: #00a000 !important;
+    color: white !important;
+    border-color: #008000 !important;
+}
+
+/* Стиль для кнопки "ОТКРЫТЬ ФАЙЛ" */
+.store-btn.download {
+    background: #0066cc !important;
+    color: white !important;
+    border-color: #0066cc !important;
+}
+
+.store-btn.download:hover {
+    background: #0055aa !important;
+    border-color: #0055aa !important;
+}
+
+.footer-links {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.footer-links a {
+    color: #000;
+    text-decoration: none;
+    padding: 5px 10px;
+    border: 2px solid #000;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.footer-links a:hover {
+    background: #000;
+    color: #fff;
+    transform: translate(-2px, -2px);
+    box-shadow: 3px 3px 0 #000;
+}
