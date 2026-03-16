@@ -449,6 +449,8 @@ function addToCartFromPreview() {
 
 // ==================== ЗАКАЗ ====================
 
+// ==================== ЗАКАЗ ====================
+
 function checkout() {
     if (cart.length === 0) {
         showNotification('Корзина пуста!');
@@ -468,48 +470,84 @@ function checkout() {
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     const itemsList = cart.map(item => `• ${item.name} - ${item.price} ₽`).join('\n');
     
-    // Симуляция оплаты
-    const confirmation = confirm(`💳 ОФОРМЛЕНИЕ ЗАКАЗА\n\nТоваров: ${cart.length}\nСумма: ${total} ₽\n\nПОДТВЕРДИТЕ ПОКУПКУ?`);
+    // ========== НОВЫЙ КОД С TELEGRAM ИНТЕГРАЦИЕЙ ==========
     
-    if (!confirmation) {
-        showNotification('❌ Покупка отменена');
-        return;
+    // Проверяем, доступен ли Telegram
+    if (window.FPTRTelegram && FPTRTelegram.initialized) {
+        // Используем Telegram Payments (если настроено)
+        if (FPTRTelegram.tg && FPTRTelegram.tg.initInvoice) {
+            FPTRTelegram.initiatePayment(cart, total);
+            return; // Ждем ответа от платежей
+        }
+        
+        // Если платежи не настроены, отправляем данные боту
+        const orderData = {
+            action: 'new_order',
+            user_id: FPTRTelegram.user?.id || 0,
+            items: cart.map(item => ({
+                id: item.id,
+                name: item.name,
+                price: item.price
+            })),
+            total: total,
+            timestamp: Date.now()
+        };
+        
+        // Показываем подтверждение через Telegram
+        FPTRTelegram.showConfirm(
+            'ОФОРМЛЕНИЕ ЗАКАЗА',
+            `Товаров: ${cart.length}\nСумма: ${total} ₽\n\nОтправить заказ в бот?`,
+            (confirmed) => {
+                if (confirmed) {
+                    // Отправляем в бота
+                    if (FPTRTelegram.sendData(orderData)) {
+                        showNotification('✅ Заказ отправлен боту!');
+                        
+                        // Помечаем товары как купленные
+                        cart.forEach(item => {
+                            markAsPurchased(item.id);
+                        });
+                        
+                        // Очищаем корзину
+                        cart = [];
+                        saveCart();
+                        
+                        // Обновляем интерфейс
+                        renderProducts();
+                        showProductsSection();
+                        
+                        // Показываем сообщение
+                        setTimeout(() => {
+                            alert(`✅ ЗАКАЗ ОТПРАВЛЕН!\n\nБот @FRPT_BOT пришлет подтверждение и реквизиты для оплаты.\n\nПосле оплаты вы получите доступ к файлам.`);
+                        }, 500);
+                    } else {
+                        showNotification('❌ Ошибка отправки. Попробуйте еще раз.');
+                    }
+                }
+            }
+        );
+    } else {
+        // Если Telegram не доступен (локальное тестирование)
+        const useTelegram = confirm(
+            `⚠️ Telegram WebApp не обнаружен.\n\nВы в режиме локального тестирования.\n\nХотите симулировать покупку?`
+        );
+        
+        if (useTelegram) {
+            // Симуляция покупки (старая логика)
+            showNotification('✅ Тестовая покупка!');
+            
+            cart.forEach(item => {
+                markAsPurchased(item.id);
+            });
+            
+            cart = [];
+            saveCart();
+            renderProducts();
+            showProductsSection();
+            
+            alert(`✅ ТЕСТОВАЯ ПОКУПКА\n\nТовары помечены как купленные.\nФайлы доступны для открытия.`);
+        }
     }
-    
-    showNotification('✅ Оплата успешно завершена!');
-    
-    // Помечаем товары как купленные
-    cart.forEach(item => {
-        markAsPurchased(item.id);
-    });
-    
-    // Очищаем корзину
-    cart = [];
-    saveCart();
-    
-    // Показываем детали
-    setTimeout(() => {
-        const purchasedProducts = getPurchasedProducts();
-        const message = `
-✅ ПОКУПКА ЗАВЕРШЕНА!
-
-Вы приобрели:
-${itemsList}
-
-Итого: ${total} ₽
-
-Теперь вы можете открыть файлы с промптами нажав на кнопку "ОТКРЫТЬ ФАЙЛ" рядом с купленным товаром.
-        `;
-        
-        alert(message);
-        
-        // Обновляем отображение товаров
-        renderProducts();
-        
-        // Закрываем корзину
-        showProductsSection();
-        
-    }, 500);
 }
 
 // ==================== УТИЛИТЫ ====================
