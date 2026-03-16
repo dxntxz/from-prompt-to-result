@@ -449,8 +449,6 @@ function addToCartFromPreview() {
 
 // ==================== ЗАКАЗ ====================
 
-// ==================== ЗАКАЗ ====================
-
 function checkout() {
     if (cart.length === 0) {
         showNotification('Корзина пуста!');
@@ -470,20 +468,15 @@ function checkout() {
     const total = cart.reduce((sum, item) => sum + item.price, 0);
     const itemsList = cart.map(item => `• ${item.name} - ${item.price} ₽`).join('\n');
     
-    // ========== НОВЫЙ КОД С TELEGRAM ИНТЕГРАЦИЕЙ ==========
+    // ===== НОВЫЙ КОД: ОТПРАВКА В БОТА =====
     
-    // Проверяем, доступен ли Telegram
-    if (window.FPTRTelegram && FPTRTelegram.initialized) {
-        // Используем Telegram Payments (если настроено)
-        if (FPTRTelegram.tg && FPTRTelegram.tg.initInvoice) {
-            FPTRTelegram.initiatePayment(cart, total);
-            return; // Ждем ответа от платежей
-        }
+    // Проверяем, открыт ли магазин через Telegram
+    if (window.Telegram && Telegram.WebApp) {
+        const tg = Telegram.WebApp;
         
-        // Если платежи не настроены, отправляем данные боту
+        // Формируем данные заказа
         const orderData = {
             action: 'new_order',
-            user_id: FPTRTelegram.user?.id || 0,
             items: cart.map(item => ({
                 id: item.id,
                 name: item.name,
@@ -493,60 +486,24 @@ function checkout() {
             timestamp: Date.now()
         };
         
-        // Показываем подтверждение через Telegram
-        FPTRTelegram.showConfirm(
-            'ОФОРМЛЕНИЕ ЗАКАЗА',
-            `Товаров: ${cart.length}\nСумма: ${total} ₽\n\nОтправить заказ в бот?`,
-            (confirmed) => {
-                if (confirmed) {
-                    // Отправляем в бота
-                    if (FPTRTelegram.sendData(orderData)) {
-                        showNotification('✅ Заказ отправлен боту!');
-                        
-                        // Помечаем товары как купленные
-                        cart.forEach(item => {
-                            markAsPurchased(item.id);
-                        });
-                        
-                        // Очищаем корзину
-                        cart = [];
-                        saveCart();
-                        
-                        // Обновляем интерфейс
-                        renderProducts();
-                        showProductsSection();
-                        
-                        // Показываем сообщение
-                        setTimeout(() => {
-                            alert(`✅ ЗАКАЗ ОТПРАВЛЕН!\n\nБот @FRPT_BOT пришлет подтверждение и реквизиты для оплаты.\n\nПосле оплаты вы получите доступ к файлам.`);
-                        }, 500);
-                    } else {
-                        showNotification('❌ Ошибка отправки. Попробуйте еще раз.');
-                    }
-                }
-            }
-        );
-    } else {
-        // Если Telegram не доступен (локальное тестирование)
-        const useTelegram = confirm(
-            `⚠️ Telegram WebApp не обнаружен.\n\nВы в режиме локального тестирования.\n\nХотите симулировать покупку?`
-        );
-        
-        if (useTelegram) {
-            // Симуляция покупки (старая логика)
-            showNotification('✅ Тестовая покупка!');
+        // Показываем подтверждение
+        if (confirm(`📦 ОФОРМЛЕНИЕ ЗАКАЗА\n\nТоваров: ${cart.length}\nСумма: ${total} ₽\n\nОтправить заказ в бот?`)) {
             
-            cart.forEach(item => {
-                markAsPurchased(item.id);
-            });
+            // Отправляем данные в бота
+            tg.sendData(JSON.stringify(orderData));
             
+            // Показываем сообщение
+            alert(`✅ ЗАКАЗ ОТПРАВЛЕН!\n\nБот @FRPT_BOT пришлет реквизиты для оплаты.\n\nПосле оплаты отправьте скриншот в чат с ботом.`);
+            
+            // Очищаем корзину (но НЕ помечаем как купленное - это сделает админ после подтверждения)
             cart = [];
             saveCart();
             renderProducts();
             showProductsSection();
-            
-            alert(`✅ ТЕСТОВАЯ ПОКУПКА\n\nТовары помечены как купленные.\nФайлы доступны для открытия.`);
         }
+    } else {
+        // Если открыто не через Telegram (локально)
+        alert('⚠️ Откройте магазин через Telegram бота @FRPT_BOT\n\nЗдесь только просмотр товаров.');
     }
 }
 
